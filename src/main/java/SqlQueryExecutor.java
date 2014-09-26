@@ -25,14 +25,8 @@ public class SqlQueryExecutor {
 
         Connection conn = getConnection();
         PreparedStatement addToAttractionMappingStatement;
-        boolean executedSuccessfully;
+        boolean executedSuccessfully =true;
         try {
-
-
-            addToAttractionMappingStatement = conn.prepareStatement("insert into attractionMapping (attractionName) VALUES (?)");
-            addToAttractionMappingStatement.setString(1, attraction.getName());
-            executedSuccessfully = addToAttractionMappingStatement.execute();
-            int attractionID = getAttractionIdByName(attraction.getName());
 
             int cityID = getCityIdByName(attraction.getCityName());
             if(cityID == -1){
@@ -44,28 +38,33 @@ public class SqlQueryExecutor {
                 addToCityMappingStatement.close();
             }
 
+            addToAttractionMappingStatement = conn.prepareStatement("insert into attractionMapping (attractionName,cityID) VALUES (?,?)");
+            addToAttractionMappingStatement.setString(1, attraction.getName());
+            addToAttractionMappingStatement.setInt(2,cityID);
+            executedSuccessfully = addToAttractionMappingStatement.execute();
+            int attractionID = getAttractionIdByName(attraction.getName());
+
             PreparedStatement addToAttractionDetailStatement =
                     conn.prepareStatement("insert ignore into attractiondetail" +
-                            "(attractionID, cityID, attractionReviewURL, attractionType, attractionFee, " +
+                            "(attractionID, attractionReviewURL, attractionType, attractionFee, " +
                             "attractionVisitTime, attractionDescription, attractionLatitude, attractionLongitude," +
                             " attractionImageURL, noOfReviews, noOfStars, additionalInformation, activities)" +
-                            " VALUES (?,?,?,?,?, ?,?,?,?, ?,?,?,?,?);");
+                            " VALUES (?,?,?,?, ?,?,?,?, ?,?,?,?,?);");
 
 
             addToAttractionDetailStatement.setInt(1,attractionID);
-            addToAttractionDetailStatement.setInt(2,cityID);
-            addToAttractionDetailStatement.setString(3,attraction.getReviewLink());
-            addToAttractionDetailStatement.setString(4,attraction.getType());
-            addToAttractionDetailStatement.setBoolean(5,attraction.isFee());
-            addToAttractionDetailStatement.setDouble(6,attraction.getRecommendedTimeForVisitInHrs());
-            addToAttractionDetailStatement.setString(7,attraction.getDescription());
-            addToAttractionDetailStatement.setDouble(8,attraction.getLatitude());
-            addToAttractionDetailStatement.setDouble(9,attraction.getLongitude());
-            addToAttractionDetailStatement.setString(10,attraction.getImageLink());
-            addToAttractionDetailStatement.setInt(11,attraction.getNoOfReviews());
-            addToAttractionDetailStatement.setDouble(12,attraction.getNoOfStars());
-            addToAttractionDetailStatement.setString(13,attraction.getAdditionalInformation());
-            addToAttractionDetailStatement.setString(14,attraction.getActivities());
+            addToAttractionDetailStatement.setString(2,attraction.getReviewLink());
+            addToAttractionDetailStatement.setString(3,attraction.getType());
+            addToAttractionDetailStatement.setBoolean(4,attraction.isFee());
+            addToAttractionDetailStatement.setDouble(5,attraction.getRecommendedTimeForVisitInHrs());
+            addToAttractionDetailStatement.setString(6,attraction.getDescription());
+            addToAttractionDetailStatement.setDouble(7,attraction.getLatitude());
+            addToAttractionDetailStatement.setDouble(8,attraction.getLongitude());
+            addToAttractionDetailStatement.setString(9,attraction.getImageLink());
+            addToAttractionDetailStatement.setInt(10,attraction.getNoOfReviews());
+            addToAttractionDetailStatement.setDouble(11,attraction.getNoOfStars());
+            addToAttractionDetailStatement.setString(12,attraction.getAdditionalInformation());
+            addToAttractionDetailStatement.setString(13,attraction.getActivities());
 
             executedSuccessfully &= addToAttractionDetailStatement.execute();
             addToAttractionDetailStatement.close();

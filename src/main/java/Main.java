@@ -162,13 +162,21 @@ public class Main {
         }
 
         Elements detailKeyElements = null;
-        try {
-            Document reviewPage = Jsoup.connect(reviewLink).get();
-            detailKeyElements = reviewPage.getElementsByClass("listing_details").first().getElementsByTag("b");
+        for(int attemptNo = 0;attemptNo<15;attemptNo++) {
+            boolean isAttemptSuccessful = true;
+            try {
+                Document reviewPage = Jsoup.connect(reviewLink).get();
+                detailKeyElements = reviewPage.getElementsByClass("listing_details").first().getElementsByTag("b");
 
-        }catch (IOException e) {
-            LOGGER.warning("review page could not be opened for "+attractionName);
-//                e.printStackTrace();
+            } catch (IOException e) {
+                isAttemptSuccessful = false;
+                LOGGER.warning("review page could not be opened for " + attractionName + " in attempt no "+
+                Integer.toString(attemptNo));
+                //                e.printStackTrace();
+            }
+            if(isAttemptSuccessful){
+                break;
+            }
         }
         if(detailKeyElements != null){
             for(Element detailKeyElement:detailKeyElements) {
