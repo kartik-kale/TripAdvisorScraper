@@ -12,10 +12,10 @@ public class Attraction {
     private String category;
     private String description;
 
-    private boolean fee;
+    private Boolean fee;
     private float recommendedTimeForVisitInHrs;
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
     private String cityName;
 
     private String activities;
@@ -53,7 +53,7 @@ public class Attraction {
         return description;
     }
 
-    public boolean isFee() {
+    public Boolean isFee() {
         return fee;
     }
 
@@ -61,11 +61,11 @@ public class Attraction {
         return recommendedTimeForVisitInHrs;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
@@ -81,7 +81,7 @@ public class Attraction {
         return additionalInformation;
     }
 
-    public Attraction(String name, String reviewLink, String imageLink, int noOfReviews, float noOfStars, String type, String category, String description, boolean fee, float recommendedTimeForVisitInHrs, float latitude, float longitude, String cityName, String activities, String additionalInformation) {
+    public Attraction(String name, String reviewLink, String imageLink, int noOfReviews, float noOfStars, String type, String category, String description, Boolean fee, float recommendedTimeForVisitInHrs, double latitude, double longitude, String cityName, String activities, String additionalInformation) {
         if(name==null || cityName == null ){
             System.out.println("Invalid attraction");
         }

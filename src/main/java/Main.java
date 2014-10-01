@@ -5,9 +5,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +28,7 @@ public class Main {
         try {
 
             // This block configure the logger with handler and formatter
-            logFileHandler = new FileHandler("C:/Users/kartik.k/Desktop/logs/MyLogFile.log");
+            logFileHandler = new FileHandler("C:/Users/kartik.k/Desktop/tripPlannerDocumentation/logs/MyLogFile.log");
             LOGGER.addHandler(logFileHandler);
             SimpleFormatter formatter = new SimpleFormatter();
             logFileHandler.setFormatter(formatter);
@@ -45,10 +43,7 @@ public class Main {
     public static void main(String[] args) {
         setupLogger();
         SqlQueryExecutor.cleanAllTables();
-        String[] listOfCities = {"Bangkok","Seoul","London","Milan","Paris","Rome",
-                "Singapore","Shanghai","New York","Amsterdam","Istanbul","Tokyo",
-                "Dubai","Vienna","Kuala Lumpur","Taipei","Hong Kong","Riyadh",
-                "Barcelona","Los Angeles"};
+        String[] listOfCities = Constants.LIST_OF_CITIES;
         for(String cityName:listOfCities){
             LOGGER.info("trying city "+cityName);
             while(!getPrimeAttractionsForCity(cityName));
@@ -127,9 +122,11 @@ public class Main {
         String description = null;
         float recommendedLengthOfVisit = 0;
         String type = null;
-        boolean fee = false;
+        Boolean fee = null;
         String activities = null;
         String information = null;
+        double latitude = 0;
+        double longitude = 0;
         try {
             Elements attractionLinkNameContainer = attractionElement.getElementsByClass("quality");
             Element attractionNameContainer = attractionLinkNameContainer.first().getElementsByTag("a").first();
@@ -168,6 +165,17 @@ public class Main {
                 Document reviewPage = Jsoup.connect(reviewLink).get();
                 detailKeyElements = reviewPage.getElementsByClass("listing_details").first().getElementsByTag("b");
 
+
+                String[] splitOnLng = reviewPage.html().toString().split("lng:");
+                if(splitOnLng.length!=2){
+                    LOGGER.warning("latlong not found in right condition..");
+                }else {
+                    String lngString = splitOnLng[1].split(",")[0];
+                    String latString = splitOnLng[0].split("lat:")[1];
+                    latitude = Double.parseDouble(latString.replaceAll("[,:\\s]",""));
+                    longitude = Double.parseDouble(lngString.replaceAll("[,:\\s]",""));
+                    LOGGER.severe(Double.toString(latitude) + " " + Double.toString(longitude));
+                }
             } catch (IOException e) {
                 isAttemptSuccessful = false;
                 LOGGER.warning("review page could not be opened for " + attractionName + " in attempt no "+
@@ -217,7 +225,7 @@ public class Main {
                             recommendedLengthOfVisit = sumOfInts/noOfIntsFound;
                         }
                         if(noOfIntsFound<1 || noOfIntsFound>2){
-                            LOGGER.warning("unexcpected no of ints found for attraction "+attractionName);
+                            LOGGER.warning("unexpected no of ints found for attraction "+attractionName);
                         }
                     }
                     if (detailKey.toLowerCase().contains("type")) {
@@ -259,7 +267,7 @@ public class Main {
 
         }
         Attraction attraction = new Attraction(attractionName,reviewLink,imageLink,noOfReviews,noOfStars,type,null,description,fee,
-                recommendedLengthOfVisit,0,0, cityName, activities, information);
+                recommendedLengthOfVisit,latitude,longitude, cityName, activities, information);
         SqlQueryExecutor.addAttractionToDB(attraction);
         return  attraction;
     }
