@@ -10,6 +10,8 @@ public class Constants {
             "Singapore", "Shanghai", "New York", "Amsterdam", "Istanbul", "Tokyo",
             "Dubai", "Vienna", "Kuala Lumpur", "Taipei", "Hong Kong", "Riyadh",
             "Barcelona", "Los Angeles"};
+    public static final String GOOGLE_MAP_API_KEY = "AIzaSyBT8wo1yu25Dyyw78QS44-kK8J4hLVlIYM";
+    final static String tripAdvisorUrlPrefix = "http://www.tripadvisor.in";
 
     public static final int getNoOfAttractions(String cityName){
         if(cityName.equals("Riyadh")){

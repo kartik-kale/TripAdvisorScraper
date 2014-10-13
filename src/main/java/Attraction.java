@@ -3,6 +3,71 @@
  */
 public class Attraction {
     private String name;
+
+    public Attraction() {
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
+    public void setReviewLink(String reviewLink) {
+        this.reviewLink = reviewLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
+
+    public void setNoOfReviews(int noOfReviews) {
+        this.noOfReviews = noOfReviews;
+    }
+
+    public void setNoOfStars(float noOfStars) {
+        this.noOfStars = noOfStars;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setFee(Boolean fee) {
+        this.fee = fee;
+    }
+
+    public void setRecommendedTimeForVisitInHrs(float recommendedTimeForVisitInHrs) {
+        this.recommendedTimeForVisitInHrs = recommendedTimeForVisitInHrs;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    public void setActivities(String activities) {
+        this.activities = activities;
+    }
+
+    public void setAdditionalInformation(String additionalInformation) {
+        this.additionalInformation = additionalInformation;
+    }
+
     private String reviewLink;
     private String imageLink;
     private int noOfReviews;

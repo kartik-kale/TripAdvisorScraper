@@ -32,7 +32,14 @@ public class ScraperTests {
 //        Assert.assertFalse(SqlQueryExecutor.isThisAttractionPresentInDistanceMatrix(9, 30));
     }
 
+    @Test
+    public void testAllCoordinatesScrapedCorrectly(){
+//        System.out.println(SqlQueryExecutor.checkIfAllLatLongFoundCorrectly("Mumbai"));
+//        Assert.assertTrue(SqlQueryExecutor.checkIfAllLatLongFoundCorrectly("Barcelona"));
 
+//        AttractionCategoryFinder.findCategoriesForOneCity("Mumbai");
+        SqlQueryExecutor.fillAvgOfThatCategoryInVisitTimeIfVisitTimeNull("Mumbai");
+    }
 
 
 }

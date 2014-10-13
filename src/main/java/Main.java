@@ -5,6 +5,8 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -17,7 +19,6 @@ import java.util.regex.Pattern;
  * Created by kartik.k on 9/24/2014.
  */
 public class Main {
-    final static String tripAdvisorUrlPrefix = "http://www.tripadvisor.in";
     private static Logger LOGGER;
 
     public static void setupLogger() {
@@ -41,28 +42,36 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        String newCities[] = {"Mumbai","Delhi","Rio de Janeiro","Sri Lanka"};
         setupLogger();
-        SqlQueryExecutor.cleanAllTables();
-        String[] listOfCities = Constants.LIST_OF_CITIES;
-        for(String cityName:listOfCities){
-            LOGGER.info("trying city "+cityName);
-            while(!getPrimeAttractionsForCity(cityName));
+//        SqlQueryExecutor.cleanAllTables();
+//        String[] listOfCities = Constants.LIST_OF_CITIES;
+//        for (int i = 0; i < listOfCities.length; i++) {
+//            String cityName = listOfCities[i];
+//            if(cityName.equals("Riyadh")){
+//                continue;
+//            }
+//            LOGGER.info("trying city " + cityName);
+//            while (!getPrimeAttractionsForCity(cityName)) ;
+//        }
+        for (int i = 0; i < newCities.length; i++) {
+            getDetailsOfOneCity(newCities[i]);
         }
+    }
 
+    public static void getDetailsOfOneCity(String newCity) {
+        String cityName = newCity;
+//            if(cityName.equals("Riyadh")){
+//                continue;
+//            }
+        LOGGER.info("trying city " + cityName);
+        while (!getPrimeAttractionsForCity(cityName)) ;
     }
 
     private static boolean getPrimeAttractionsForCity(String cityName) {
         try {
 
-            Document document = Jsoup.connect("http://www.tripadvisor.in/Search?q=" + extractCityNameToBeQueried(cityName)).get();
-            Element firstResult = document.getElementsByClass("item1").first();
-            if(firstResult==null){
-                LOGGER.warning(document.html());
-            }
-            Element headOfFirstResult = firstResult.getElementsByClass("srHead").first();
-            Element aTagOfFirstSearchResult = headOfFirstResult.getElementsByTag("a").first();
-
-            String linkOfCityHomePage = tripAdvisorUrlPrefix + aTagOfFirstSearchResult.attr("href");
+            String linkOfCityHomePage = ScraperHelper.getCityHomePageLink(cityName);
             String linkOfCityAttractions = linkOfCityHomePage.replace("Tourism","Attractions");
             String linkOfCityHotels= linkOfCityHomePage.replace("Tourism","Hotels");
             Document cityHomePage = Jsoup.connect(linkOfCityHomePage).get();
@@ -78,9 +87,21 @@ public class Main {
             }
 
             List<Attraction> listOfAttractions = new ArrayList<Attraction>();
+            String linkOfCityAttractionsSecondPage = linkOfCityAttractions.replace(".html", "-oa30.html");
             listOfAttractions.addAll(getListOfAttractions(linkOfCityAttractions, cityName));
+            listOfAttractions.addAll(getListOfAttractions(linkOfCityAttractionsSecondPage, cityName));
 
-
+            Collections.sort(listOfAttractions,new Comparator<Attraction>() {
+                        @Override
+                        public int compare(Attraction o1, Attraction o2) {
+                            return o1.getNoOfReviews()-o2.getNoOfReviews();
+                        }
+                    }
+            );
+            listOfAttractions = listOfAttractions.subList(listOfAttractions.size()-30,listOfAttractions.size());
+            for(Attraction attraction:listOfAttractions){
+                SqlQueryExecutor.addAttractionToDB(attraction);
+            }
             LOGGER.fine("image link for "+cityName + " is "+linkOfCityImage);
             return true;
         } catch (IOException e) {
@@ -92,13 +113,6 @@ public class Main {
             nullException.printStackTrace();
             return false;
         }
-    }
-
-    private static String extractCityNameToBeQueried(String cityName) {
-        String formattedCityName = cityName.trim();
-                formattedCityName= formattedCityName.toLowerCase();
-        formattedCityName = formattedCityName.replace(" ","+");
-        return formattedCityName;
     }
 
 
@@ -133,7 +147,7 @@ public class Main {
 
             attractionName = attractionNameContainer.html();
             LOGGER.fine("attraction name is "+attractionName);
-            reviewLink = tripAdvisorUrlPrefix + attractionNameContainer.attr("href");
+            reviewLink = Constants.tripAdvisorUrlPrefix + attractionNameContainer.attr("href");
             LOGGER.fine("review link for attraction "+attractionName + " "+ reviewLink);
             Element ratingElement = attractionElement.getElementsByClass("sprite-ratings").first();
             noOfStars = Float.parseFloat(ratingElement.attr("content"));
@@ -174,7 +188,7 @@ public class Main {
                     String latString = splitOnLng[0].split("lat:")[1];
                     latitude = Double.parseDouble(latString.replaceAll("[,:\\s]",""));
                     longitude = Double.parseDouble(lngString.replaceAll("[,:\\s]",""));
-                    LOGGER.severe(Double.toString(latitude) + " " + Double.toString(longitude));
+//                    LOGGER.severe(Double.toString(latitude) + " " + Double.toString(longitude));
                 }
             } catch (IOException e) {
                 isAttemptSuccessful = false;
@@ -268,7 +282,9 @@ public class Main {
         }
         Attraction attraction = new Attraction(attractionName,reviewLink,imageLink,noOfReviews,noOfStars,type,null,description,fee,
                 recommendedLengthOfVisit,latitude,longitude, cityName, activities, information);
-        SqlQueryExecutor.addAttractionToDB(attraction);
+//        SqlQueryExecutor.addAttractionToDB(attraction);
         return  attraction;
     }
+
+
 }

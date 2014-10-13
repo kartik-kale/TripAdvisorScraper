@@ -15,20 +15,22 @@ import java.util.Map;
  * Created by kartik.k on 9/30/2014.
  */
 public class DistanceMatrixCalculator {
+
     public static void main(String[] args) {
-        for(int cityIndex = 0;cityIndex<Constants.LIST_OF_CITIES.length;cityIndex++){
-
-            if((cityIndex<10)){
-                continue;
-            }
-            String city = Constants.LIST_OF_CITIES[cityIndex];
-            System.out.println("getting distances for "+ city);
-            findAndStoreDistanceMAtrixForOneCity(city);
-        }
-
+//        for(int cityIndex = 0;cityIndex<Constants.LIST_OF_CITIES.length;cityIndex++){
+//
+//
+//            String city = Constants.LIST_OF_CITIES[cityIndex];
+//            if(cityIndex<16){
+//                continue;
+//            }
+//            System.out.println("getting distances for "+ city);
+//            findAndStoreDistanceMAtrixForOneCity(city);
+//        }
+findAndStoreDistanceMAtrixForOneCity("Mumbai");
     }
 
-    private static void findAndStoreDistanceMAtrixForOneCity(String cityName) {
+    public static void findAndStoreDistanceMAtrixForOneCity(String cityName) {
         Map<Integer,Coordinate> coordinateMap = SqlQueryExecutor.getCoordinatesOfAllAttractions(cityName);
         List<Integer> listOfAttractionID=new ArrayList<Integer>(coordinateMap.keySet());
 
@@ -41,6 +43,7 @@ public class DistanceMatrixCalculator {
             Coordinate[] destAttractionCoordinateArray = new Coordinate[noOfAttractions -srcAttractionIndex-1];
 
             for(int destAttractionIndex = srcAttractionIndex+1;destAttractionIndex< noOfAttractions;destAttractionIndex++){
+
                 destAttractionCoordinateArray[destAttractionIndex-srcAttractionIndex-1] =
                         coordinateMap.get(listOfAttractionID.get(destAttractionIndex));
             }
@@ -80,9 +83,9 @@ public class DistanceMatrixCalculator {
             destinationList = destinationList.substring(0,destinationList.length()-1);
         }
         try {
-            url = new URL("http://maps.googleapis.com/maps/api/distancematrix/json?origins="
+            url = new URL("https://maps.googleapis.com/maps/api/distancematrix/json?origins="
                     +srcCoordinate.toString()+
-                    "&destinations="+destinationList);
+                    "&destinations="+destinationList + "&mode=walking&key=" + Constants.GOOGLE_MAP_API_KEY);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         };
@@ -157,6 +160,7 @@ public class DistanceMatrixCalculator {
             String currentPairStaus = (String) pairOfCoordinates.get("status");
             if(!currentPairStaus.equals("OK")){
                 System.out.println("error response for this pair of locations :"+currentPairStaus);
+                System.out.println(pairsOfPlaces.toString());
             }
             else {
                 Long distanceInMetres = (Long) distanceInfo.get("value");
